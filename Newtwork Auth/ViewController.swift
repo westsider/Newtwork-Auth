@@ -10,13 +10,12 @@ import UIKit
 //import Foundation
 class ViewController: UIViewController {
 
+    let user = "someUser"
+    let password = "somePassWord"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let user = "someUser"
-        let password = "somePassword"
         callNetwork(ticker: "AAPL", user: user, password: password)
-        
     }
 
     //MARK: - TODO - Refactor to network file
@@ -38,23 +37,7 @@ class ViewController: UIViewController {
                 return
             }
             
-            let jsonObj = try! JSONSerialization.jsonObject(with: data, options: .allowFragments) as? NSDictionary
-            print(jsonObj!.value(forKey: "data")!)
-            if let priceArray = jsonObj!.value(forKey: "data") as? NSArray {
-                //looping through all the elements
-                for each in priceArray {
-                    
-                    //converting the element to a dictionary
-                    if let priceDict = each as? NSDictionary {
-                        //getting the name from the dictionary
-                        if let date = priceDict.value(forKey: "date"), let close = priceDict.value(forKey: "close") {
-                            print(date, close)
-                        }
-                        
-                    }
-                }
-            }
-            
+            self.parseData(data: data, showJson: false)
             
             if let httpStatus = response as? HTTPURLResponse {
                 // check status code returned by the http server
@@ -64,6 +47,25 @@ class ViewController: UIViewController {
         }
         task.resume()
     }
-
+    
+    func parseData(data: Data, showJson:Bool) {
+        let jsonObj = try! JSONSerialization.jsonObject(with: data, options: .allowFragments) as? NSDictionary
+        if showJson {
+            print(jsonObj!.value(forKey: "data")!)
+        }
+        if let priceArray = jsonObj!.value(forKey: "data") as? NSArray {
+            //looping through all the elements
+            for each in priceArray {
+                
+                //converting the element to a dictionary
+                if let priceDict = each as? NSDictionary {
+                    //getting the name from the dictionary
+                    if let date = priceDict.value(forKey: "date"), let close = priceDict.value(forKey: "close") {
+                        print(date, close)
+                    }
+                }
+            }
+        }
+    }
 }
 
